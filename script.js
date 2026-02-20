@@ -2,61 +2,26 @@ const versoElemento = document.getElementById("verso");
 const referenciaElemento = document.getElementById("referencia");
 const refreshBtn = document.getElementById("refreshBtn");
 const whatsBtn = document.getElementById("whatsBtn");
-
-let versoAtual = "";
-let referenciaAtual = "";
-
-const idiomaUsuario = navigator.language.split("-")[0];
-
-async function traduzirTexto(texto, idiomaDestino) {
-  try {
-    const resposta = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|${idiomaDestino}`,
-    );
-    const dados = await resposta.json();
-    return dados.responseData.translatedText;
-  } catch {
-    return texto;
-  }
-}
+const imgBtn = document.getElementById("imgBtn");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
 async function carregarVerso() {
   versoElemento.textContent = "Carregando...";
   referenciaElemento.textContent = "";
 
   try {
-    const resposta = await fetch("https://bible-api.com/?random=verse");
+    const url = "https://bible-api.com/data/almeida/random";
+
+    const resposta = await fetch(url);
     const dados = await resposta.json();
+
     const versoData = dados.verses?.[0];
-
     if (!versoData) throw new Error("Formato inesperado da API");
-    versoAtual = dados.text.trim();
 
-    let textoFinal = versoAtual;
+    versoElemento.textContent = `"${dados.text.trim()}"`;
+    referenciaElemento.textContent = dados.reference;
 
-    if (idiomaUsuario !== "en") {
-      textoFinal = await traduzirTexto(versoAtual, idiomaUsuario);
-    }
-
-    // 🔥 Pegando corretamente do array
-    const livroOriginal = dados.verses[0].book_name;
-
-    const livroTraduzido =
-      idiomaUsuario === "pt" && livrosPT[livroOriginal]
-        ? livrosPT[livroOriginal]
-        : livroOriginal;
-    const capitulo = dados.verses[0].chapter;
-    const versiculo = dados.verses[0].verse;
-
-
-    if (idiomaUsuario === "pt" && livrosPT[livroOriginal]) {
-      livroTraduzido = livrosPT[livroOriginal];
-    }
-
-    const referenciaFinal = `${livroTraduzido} ${capitulo}:${versiculo}`;
-
-    versoElemento.textContent = `"${textoFinal}"`;
-    referenciaElemento.textContent = referenciaFinal;
   } catch (erro) {
     versoElemento.textContent = "Erro ao carregar o versículo.";
     console.error(erro);
@@ -69,10 +34,7 @@ function compartilharWhatsApp() {
   window.open(url, "_blank");
 }
 
-// CANVAS
-const imgBtn = document.getElementById("imgBtn");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+/* ================= CANVAS ================= */
 
 function quebrarTexto(ctx, texto, maxWidth) {
   const palavras = texto.split(" ");
@@ -82,6 +44,7 @@ function quebrarTexto(ctx, texto, maxWidth) {
   palavras.forEach((palavra) => {
     const teste = linhaAtual + palavra + " ";
     const largura = ctx.measureText(teste).width;
+
     if (largura > maxWidth) {
       linhas.push(linhaAtual);
       linhaAtual = palavra + " ";
@@ -102,7 +65,8 @@ async function gerarImagem() {
   ctx.font = "bold 60px Segoe UI";
   ctx.textAlign = "center";
 
-  const linhas = quebrarTexto(ctx, versoElemento.textContent, 900);
+  const texto = versoElemento.textContent.replace(/^"|"$/g, "");
+  const linhas = quebrarTexto(ctx, texto, 900);
 
   let y = 400;
   linhas.forEach((linha) => {
@@ -135,23 +99,15 @@ async function gerarImagem() {
   }
 }
 
-imgBtn.addEventListener("click", gerarImagem);
+/* ================= EVENTOS ================= */
 
 refreshBtn.addEventListener("click", carregarVerso);
 whatsBtn.addEventListener("click", compartilharWhatsApp);
-
-// JSON COM OS NOMES DOS LIVROS
-
-let livrosPT = {};
-
-async function carregarLivros() {
-  const resposta = await fetch("books.json");
-  livrosPT = await resposta.json();
-}
-
-carregarLivros(); // chame antes de carregarVerso()
+imgBtn.addEventListener("click", gerarImagem);
 
 carregarVerso();
+
+/* ================= PWA ================= */
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("service-worker.js");
