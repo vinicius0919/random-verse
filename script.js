@@ -149,7 +149,7 @@ async function carregarLivros() {
   livrosPT = await resposta.json();
 }
 
-await carregarLivros(); // chame antes de carregarVerso()
+carregarLivros(); // chame antes de carregarVerso()
 
 carregarVerso();
 
