@@ -16,11 +16,13 @@ async function carregarVerso() {
     const resposta = await fetch(url);
     const dados = await resposta.json();
 
-    const versoData = dados.verses?.[0];
-    if (!versoData) throw new Error("Formato inesperado da API");
+    const verso = dados.random_verse;
 
-    versoElemento.textContent = `"${dados.text.trim()}"`;
-    referenciaElemento.textContent = dados.reference;
+    if (!verso) throw new Error("Formato inesperado da API");
+
+    versoElemento.textContent = `"${verso.text.trim()}"`;
+    referenciaElemento.textContent = 
+      `${verso.book} ${verso.chapter}:${verso.verse}`;
 
   } catch (erro) {
     versoElemento.textContent = "Erro ao carregar o versículo.";
