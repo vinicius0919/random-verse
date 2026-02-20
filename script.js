@@ -12,7 +12,7 @@ async function carregarVerso() {
 
   try {
     const resposta = await fetch(
-      `https://bible-api.com/data/almeida/random?ts=${Date.now()}`
+      `https://bible-api.com/data/almeida/random?ts=${Date.now()}`,
     );
 
     if (!resposta.ok) {
@@ -28,9 +28,7 @@ async function carregarVerso() {
     }
 
     versoElemento.textContent = `"${verso.text.trim()}"`;
-    referenciaElemento.textContent =
-      `${verso.book} ${verso.chapter}:${verso.verse}`;
-
+    referenciaElemento.textContent = `${verso.book} ${verso.chapter}:${verso.verse}`;
   } catch (erro) {
     versoElemento.textContent = "Não foi possível carregar o versículo.";
     referenciaElemento.textContent = "";
@@ -67,35 +65,73 @@ function quebrarTexto(ctx, texto, maxWidth) {
 }
 
 async function gerarImagem() {
-  ctx.fillStyle = "#1e3c72";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const texto = versoElemento.textContent.replace(/^"|"$/g, "");
+  const referencia = referenciaElemento.textContent;
 
-  ctx.fillStyle = "white";
-  ctx.font = "bold 60px Segoe UI";
+  const maxWidth = 900;
+  let fontSize = 60;
+
+  if (texto.length > 350) fontSize = 42;
+  else if (texto.length > 250) fontSize = 48;
+  else if (texto.length > 180) fontSize = 54;
+
+  ctx.font = `bold ${fontSize}px Segoe UI`;
+
+  const linhas = quebrarTexto(ctx, texto, maxWidth);
+  const lineHeight = fontSize * 1.4;
+
+  const alturaTexto = linhas.length * lineHeight;
+  const alturaReferencia = 100;
+  const padding = 200;
+
+  const alturaFinal = alturaTexto + alturaReferencia + padding;
+
+  canvas.height = Math.max(1080, alturaFinal);
+
+  // ⚠ Reconfigurar após resize
   ctx.textAlign = "center";
 
-  const texto = versoElemento.textContent.replace(/^"|"$/g, "");
-  const linhas = quebrarTexto(ctx, texto, 900);
+  // 🎨 Gradiente
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, "#1e3c72");
+  gradient.addColorStop(0.5, "#2a5298");
+  gradient.addColorStop(1, "#4facfe");
 
-  let y = 400;
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // ✨ Sombra
+  ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 6;
+
+  // 📝 Texto
+  ctx.fillStyle = "white";
+  ctx.font = `bold ${fontSize}px Segoe UI`;
+
+  const blocoTotal = alturaTexto + alturaReferencia;
+  let y = (canvas.height - blocoTotal) / 2;
+
   linhas.forEach((linha) => {
     ctx.fillText(linha.trim(), canvas.width / 2, y);
-    y += 80;
+    y += lineHeight;
   });
 
+  // 📖 Referência
   ctx.fillStyle = "#ffd700";
-  ctx.font = "50px Segoe UI";
-  ctx.fillText(referenciaElemento.textContent, canvas.width / 2, y + 40);
+  ctx.font = `bold ${fontSize - 10}px Segoe UI`;
+  ctx.fillText(referencia, canvas.width / 2, y + 40);
+
+  // 🔄 Reset sombra
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
 
   const blob = await new Promise((resolve) => canvas.toBlob(resolve));
 
-  if (
-    navigator.share &&
-    navigator.canShare({
-      files: [new File([blob], "versiculo.png", { type: "image/png" })],
-    })
-  ) {
-    const file = new File([blob], "versiculo.png", { type: "image/png" });
+  const file = new File([blob], "versiculo.png", { type: "image/png" });
+
+  if (navigator.share && navigator.canShare({ files: [file] })) {
     await navigator.share({
       files: [file],
       title: "Versículo Bíblico",
@@ -107,7 +143,6 @@ async function gerarImagem() {
     link.click();
   }
 }
-
 /* ================= EVENTOS ================= */
 
 refreshBtn.addEventListener("click", carregarVerso);
