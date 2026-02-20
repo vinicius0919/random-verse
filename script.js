@@ -15,12 +15,17 @@ async function carregarVerso() {
       `https://bible-api.com/data/almeida/random?ts=${Date.now()}`
     );
 
-    if (!resposta.ok) throw new Error("Erro na requisição");
+    if (!resposta.ok) {
+      throw new Error(`Erro HTTP: ${resposta.status}`);
+    }
 
     const dados = await resposta.json();
-    const verso = dados.random_verse;
 
-    if (!verso?.text) throw new Error("Resposta inválida");
+    const verso = dados?.random_verse;
+
+    if (!verso || !verso.text) {
+      throw new Error("Formato inesperado da API");
+    }
 
     versoElemento.textContent = `"${verso.text.trim()}"`;
     referenciaElemento.textContent =
