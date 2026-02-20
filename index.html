@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Versículo do Dia</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="shortcut icon" href="biblia.ico" type="image/x-icon">
+    <meta name="theme-color" content="#1e3c72" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>📖 Versículo Aleatório</h1>
+
+      <div class="verso-box">
+        <p id="verso">Carregando versículo...</p>
+        <span id="referencia"></span>
+      </div>
+
+      <button id="refreshBtn">Novo Versículo</button>
+      <button id="whatsBtn">Compartilhar no WhatsApp</button>
+      <button id="imgBtn">Compartilhar como Imagem</button>
+      <canvas
+        id="canvas"
+        width="1080"
+        height="1080"
+        style="display: none"
+      ></canvas>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
