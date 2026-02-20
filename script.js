@@ -11,25 +11,27 @@ async function carregarVerso() {
   referenciaElemento.textContent = "";
 
   try {
-    const url = "https://bible-api.com/data/almeida/random";
+    const resposta = await fetch(
+      `https://bible-api.com/data/almeida/random?ts=${Date.now()}`
+    );
 
-    const resposta = await fetch(url);
+    if (!resposta.ok) throw new Error("Erro na requisição");
+
     const dados = await resposta.json();
-
     const verso = dados.random_verse;
 
-    if (!verso) throw new Error("Formato inesperado da API");
+    if (!verso?.text) throw new Error("Resposta inválida");
 
     versoElemento.textContent = `"${verso.text.trim()}"`;
-    referenciaElemento.textContent = 
+    referenciaElemento.textContent =
       `${verso.book} ${verso.chapter}:${verso.verse}`;
 
   } catch (erro) {
-    versoElemento.textContent = "Erro ao carregar o versículo.";
-    console.error(erro);
+    versoElemento.textContent = "Não foi possível carregar o versículo.";
+    referenciaElemento.textContent = "";
+    console.error("Erro:", erro);
   }
 }
-
 function compartilharWhatsApp() {
   const mensagem = `${versoElemento.textContent}\n\n${referenciaElemento.textContent}`;
   const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
