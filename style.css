@@ -18,7 +18,7 @@ body {
 .container {
   text-align: center;
   width: 100%;
-  max-width: 700px;
+  max-width: 850px;
   padding: 40px;
   background: rgba(0, 0, 0, 0.35);
   border-radius: 20px;
@@ -90,6 +90,6 @@ button:hover {
   }
 
   #referencia {
-    font-size: 19px;
+    font-size: 20px;
   }
 }
