@@ -1,48 +1,45 @@
 const CACHE_NAME = "versiculo-cache-v2";
+const urlsToCache = ["/", "/index.html", "/style.css", "/script.js"];
 
-const urlsToCache = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./script.js"
-];
-
+// INSTALL
 self.addEventListener("install", (event) => {
+  self.skipWaiting(); // ativa imediatamente
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      Promise.all(
-        urlsToCache.map((url) =>
-          cache.add(url).catch((err) => {
-            console.warn("Falha ao cachear:", url);
-          })
-        )
-      )
-    )
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)),
   );
-
-  self.skipWaiting();
 });
 
+// ACTIVATE
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            return caches.delete(key);
+            return caches.delete(key); // remove caches antigos
           }
-        })
-      )
-    )
+        }),
+      ),
+    ),
   );
-
-  self.clients.claim();
+  self.clients.claim(); // assume controle imediato
 });
 
+// FETCH → Stale While Revalidate
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return networkResponse;
+      });
+
+      return cachedResponse || fetchPromise;
+    }),
   );
 });
