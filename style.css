@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   display: flex;
   flex-direction: column;
@@ -25,8 +25,9 @@ body {
   border-radius: 20px;
   backdrop-filter: blur(12px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+
 }
-section.header{
+section.header {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -36,9 +37,9 @@ section.header{
   font-weight: 600;
 }
 
-section.header input{
-accent-color: gold;
-background-color: #2a5298;
+section.header input {
+  accent-color: gold;
+  background-color: #2a5298;
 }
 
 h1 {
@@ -50,8 +51,14 @@ h1 {
   margin: 25px 0;
   font-size: 20px;
   line-height: 1.8;
-  word-break: break-word;       /* impede overflow */
-  overflow-wrap: break-word;    /* garante quebra correta */
+  word-break: break-word; /* impede overflow */
+  overflow-wrap: break-word; /* garante quebra correta */
+  background-color: #2a5298;
+  border: solid 1px #172c50;
+  box-shadow: 0px 0px 20px #0e1b31;
+  border-radius: 20px;
+  
+  animation: cardIn 1s ease-out forwards;
 }
 
 #verso {
@@ -89,7 +96,6 @@ button:hover {
 /* 📱 Mobile */
 
 @media screen and (max-width: 768px) {
-
   body {
     align-items: flex-start; /* evita corte quando texto cresce */
   }
@@ -100,6 +106,7 @@ button:hover {
   }
 
   .verso-box {
+    padding: .8rem;
     font-size: 22px;
     line-height: 1.7;
   }
@@ -107,4 +114,17 @@ button:hover {
   #referencia {
     font-size: 20px;
   }
+}
+
+@keyframes cardIn {
+  0% {
+    transform: translateX(-600px) rotate(-60deg);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+.invisible{
+  display: none;
 }

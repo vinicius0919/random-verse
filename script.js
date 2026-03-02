@@ -6,14 +6,15 @@ const imgBtn = document.getElementById("imgBtn");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const salmos = document.getElementById("salmos");
+const versoBox = document.getElementById("verso-box")
 
 async function carregarVerso() {
   versoElemento.textContent = "Carregando...";
   referenciaElemento.textContent = "";
-
+  versoBox.classList.add("invisible");
   try {
-    const onlySalmos = salmos.checked
-    let url = `https://bible-api.com/data/almeida/random${onlySalmos?"/PSA":""}?ts=${Date.now()}`;
+    const onlySalmos = salmos.checked;
+    let url = `https://bible-api.com/data/almeida/random${onlySalmos ? "/PSA" : ""}?ts=${Date.now()}`;
 
     const resposta = await fetch(url);
 
@@ -31,6 +32,9 @@ async function carregarVerso() {
 
     versoElemento.textContent = `"${verso.text.trim()}"`;
     referenciaElemento.textContent = `${verso.book} ${verso.chapter}:${verso.verse}`;
+    versoBox.classList.remove("invisible");
+
+  
   } catch (erro) {
     versoElemento.textContent = "Não foi possível carregar o versículo.";
     referenciaElemento.textContent = "";
