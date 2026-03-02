@@ -5,15 +5,17 @@ const whatsBtn = document.getElementById("whatsBtn");
 const imgBtn = document.getElementById("imgBtn");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const salmos = document.getElementById("salmos");
 
 async function carregarVerso() {
   versoElemento.textContent = "Carregando...";
   referenciaElemento.textContent = "";
 
   try {
-    const resposta = await fetch(
-      `https://bible-api.com/data/almeida/random?ts=${Date.now()}`,
-    );
+    const onlySalmos = salmos.checked
+    let url = `https://bible-api.com/data/almeida/random${onlySalmos?"/PSA":""}?ts=${Date.now()}`;
+
+    const resposta = await fetch(url);
 
     if (!resposta.ok) {
       throw new Error(`Erro HTTP: ${resposta.status}`);
@@ -153,12 +155,15 @@ carregarVerso();
 
 /* ================= PWA ================= */
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    reg.addEventListener('updatefound', () => {
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").then((reg) => {
+    reg.addEventListener("updatefound", () => {
       const newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+      newWorker.addEventListener("statechange", () => {
+        if (
+          newWorker.state === "installed" &&
+          navigator.serviceWorker.controller
+        ) {
           window.location.reload();
         }
       });
